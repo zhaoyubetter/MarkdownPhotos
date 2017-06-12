@@ -85,13 +85,12 @@ when类似switch，但是比switch更为强大，
             .forEach { println(it) }
 
 ### Lambda表达式
-```
-fun main(args: Array<String>) {
-    // 类似于函数调用
-    sayHello.invoke("better", "hello world")
-}
+	fun main(args: Array<String>) {
+    	// 类似于函数调用
+    	sayHello.invoke("better", "hello world")
+	}
 
-val sayHello = { name: String, msg: String ->
-    println("$name say $msg to you")
-}
-```
+	val sayHello = { name: String, msg: String ->
+    	println("$name say $msg to you")
+	}
+	
