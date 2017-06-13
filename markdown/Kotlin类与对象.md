@@ -153,4 +153,75 @@ fun main(args: Array<String>) {
 
 **注意：**
 伴生对象看起来像其他语言的静态成员，但在运行时，仍然是真是对象的实例成员；
-在JVM上，可以使用注解 `@JVMStatic`可将伴生对象成员，生成真的静态；
+在JVM上，可以使用注解 `@JVMStatic`可将伴生对象成员，生成真的静态czz；
+
+### Getter 与 Setter
+只读属性 用 val 声明，即没有对象的setter，可变用 var 声明；
+整体语法为：
+
+	var <propertyName>[:<PropertyType>] [=<init>]
+		[<getter>]
+		[<setter>]
+
+具体例子：
+	
+	var str:String
+		get() = this.toString
+		set(value) {
+			field = value		// 幕后字段
+		}
+
+可见性修饰
+
+	var str:String="better"
+		private set		// set 私有
+		
+### 幕后字段
+通过默认字段来访问属性，kotlin提供 `field`关键字来访问幕后字段；
+`field`只能在属性的访问器内；
+如上代码；
+
+### 编译期常量
+
+已知值得可使用`const`修饰符来标记为 编译期常量，这些属性需满足以下：
+
+- 位于顶层或是 `object` 的一个成员；
+- 用 `String` 或原生类型值初始化；
+- 没自定义getter；
+
+		const val url:String = "http://"
+	
+### 可见性修饰符
+用来修饰类、接口、方法，属性等，kotlin有：`private、protected、internal与 public`，默认没有显式指定时，为public；
+
+- 默认为public；
+- private 为声明的文件可见；
+- internal，表示相同的模块内可见（一个模块是编译 在一起的一套 Kotlin 文件）；
+- protected private + 子类可见
+
+**包**
+
+函数、属性、类，对象接口等，可以在顶层声明，即：直接在包内；
+顶层就是包；
+这样包内，可声明多个类了
+
+	// 文件名：hello.kt
+	package test
+	
+	private fun test()	// 在hello.kt 中可见
+	
+	publc var bar:Int = 5	// 到处可见
+		private set			// setter 只在 hello.kt中可见
+		
+	internal val bz = 22	// 相同模块内可见
+	
+	class Test1
+	class Test2
+
+
+
+
+
+
+
+
