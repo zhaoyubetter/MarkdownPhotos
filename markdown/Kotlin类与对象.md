@@ -219,9 +219,57 @@ fun main(args: Array<String>) {
 	class Test2
 
 
+### 扩展
+扩展一个类用来添加新功能，而无需继承该类，或使用类似装饰的设计模式，这就是kotlin中的扩展；
+kotlin有 `扩展函数` 与 `扩展属性`
 
+**扩展函数**
 
+声明扩展函数，需要用到一个 `接收器类型`，也即是被扩展的类型作为前缀，如下代码中的Collection；
 
+以下为Collection添加扩展函数 `joinString`，为了方便在Java中使用，给此类取个名字，如下注解：`@file:JvmName()`，这样表示此类，会生成java想用的工具类
+	
+	```java
+	@file:JvmName("StringFunctions")
 
+	// 扩展 Collection
+	fun <T> Collection<T>.joinString(separator: String = ", ",
+                                 prefix: String = "",
+                                 postfix: String = ""): String {
+    	val result = StringBuilder(prefix)
+    	for ((index, item) in withIndex()) {
+        	if (index > 0) result.append(separator)
+        	result.append(item)
+    	}
+    	result.append(postfix)
+    	return result.toString()
+	}
+	
+	// 使用
+	fun main(args: Array<String>) {
+    	val list = arrayListOf("1","2","3")
+    	println(list.joinString(","))	// 输出 1,2,3
+	}
+	
+	// java 中的使用
+	List<String> items = new ArrayList<>();
+    items.add("one");
+    items.add("two");
+    items.add("three");
+	// StringFunctions 为静态工具类，类似于Utils
+    String str = StringFunctions.joinToString(items, ", ", "(", ")");
+	```
 
+	
+`this` 关键字在扩展函数中，表示接收者对象（.符号前的对象）：
 
+	``` java
+	fun <T> MutableList<T>.swap(index1:Int, index2:Int) {
+    	val tmp = this[index1]			// this 表示 MutableList对象
+    	this[index1] = this[index2]
+    	this[index2] = tmp
+	}
+	```
+
+### 扩展是静态解析
+    
