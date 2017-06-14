@@ -49,7 +49,7 @@ init 为初始化块
 	
 	val person = Person()
 
-####类成员包括
+**类成员包括**
 - 构造函数和初始化块
 - 函数
 - 属性
@@ -273,9 +273,40 @@ kotlin有 `扩展函数` 与 `扩展属性`
 	```			
 
 
-### 扩展是静态解析
+###扩展是静态解析
 
-```java
-public static 
-```
+扩展不能真正修改所扩展的类；仅是通过该类型的变量通过 点 去调用这个新函数；
+扩展函数是静态分发的，调用的扩展函数是由函数调用的所在表达式的类型来决定，而不是由表达式运行时的求值结果决定；
+
+	```java
+	open class C
+	
+	open class D : C()
+	
+	fun C.foo() = "from class C"            // 为C添加扩展方法
+	
+	fun D.foo() = "=====> from class D"     // 为D添加扩展方法
+	
+	// 顶级方法
+	fun printFoo(c: C) {        // 传 C 打印C，传D打印D，不会根据运行时，动态匹配（没有多态）
+	    println(c.foo())
+	}
+	
+	fun main() {
+	    printFoo(D())
+	}
+	```
+
+输出：`from class C` 是因为调用的扩展函数只取决于参数 `c` 的类型；
+
+*如果那成员函数与扩展函数一致呢，以成员函数为准（即：废了），但不同函数重载签名是可以的*
+
+**为可空的接收者添加扩展**
+	
+	fun Any?.toString() {
+		if(this == null) return "null"
+		return toString()	
+	}
+
+###扩展属性
 
