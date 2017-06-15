@@ -309,4 +309,135 @@ kotlin有 `扩展函数` 与 `扩展属性`
 	}
 
 ###扩展属性
+类似于扩展函数，也支持扩展属性
+
+	```java
+	// 1.扩展函数，String为扩展的类，receiver type;  this 为接收器对象 receiver obj
+	// 添加了方法到String类
+	fun String.lastChar(): Char = this.get(this.length - 1)     // or get(length - 1)
+
+	// 2.添加扩展属性
+	val String.lastChar: Char
+    	get() = get(length - 1)
+
+	// 为 StringBuilder添加扩展属性
+	var StringBuilder.lastChar: Char
+    	get() = get(length - 1)     // getter
+    	set(value: Char) {          // setter
+        	this.setCharAt(length - 1, value)
+    	}
+	
+	fun main(args: Array<String>) {
+    	println("Kotlin".lastChar()) // Kotlin 为接收器对象
+    	println("better".lastChar)   // 扩展属性
+
+    	println("扩展属性 for StringBuilder")
+    	var sb = StringBuilder("Kotlin?")
+    	println(sb.lastChar)
+    	sb.lastChar = '!'	 // 调用 setter
+    	println(sb)
+	}
+	```
+### 伴生对象的扩展
+
+	// 伴生对象的扩展函数
+	class MyClass {
+    	companion object { }	// 名称为 Companion
+	}
+
+	fun MyClass.Companion.foo() {
+    	println("ok")
+	}
+	
+	// 调用
+	MyClass.foo()
+
+###扩展的作用域
+
+大多数情况，在顶层定义扩展，即直接在包里；如果要使用，需要在调用方导入：
+	
+	package top_level
+	
+	fun Collection<String>.join(separator: String = ", ",
+                            prefix: String = "" 
+	...
+
+在其他包中的使用：
+
+	package regex		// 其他包
+
+	import top_level.joinString	// 导入扩展函数
+	// import top_level.joinString as myJoin	// 取别名
+
+	val arrays = arrayListOf<Int>(1,2,3)
+    println(arrays.joinString(","))
+
+### 扩展声明为成员
+
+- 在一个类的内部，可以为另一个类声明扩展； 
+- 在这样的扩展内部，有多个隐式接收者；
+- 扩展声明所在的类的实例为 `分发接收者`，扩展方法调用所在的接收者类型的实例为 `扩展接收者`
+
+---
+
+	fun main(args: Array<String>) {
+    	Class_C().caller(Class_D())
+	}
+
+	class Class_D {
+    	override fun toString(): String {
+    	    println("D 类 toString() 方法调用...")
+    	    return super.toString()
+    	}
+	}
+
+	class Class_C {
+    	fun baz() {}
+	
+    	// 为D类增加扩展方法
+    	fun Class_D.foo() {
+    	    toString()          		// 扩展接收者 D 类的toString
+    	    this@Class_C.toString()   	// 分发接收者使用 this
+    	}
+
+    	fun caller(d: Class_D) {
+        	d.foo()       // 调用扩展函数
+    	}
+
+    	override fun toString(): String {
+        	println("C 类 toString() 方法调用")
+       	 	return super.toString()
+    	}
+	}
+
+
+###数据类
+需要创建一些只保存数据的类；在Kotlin中，叫做数据类 并标记为 `data`：
+
+编译器将主动从主构造函数中声明中的所有属性导出一下成员：
+
+>1. equals() / hashcode() 对；
+>2. toString() 格式是 "类名(属性名=xxx)"
+>3. `componentN` 函数按声明顺序对应所有属性
+>4. copy 函数
+
+以上函数，如果其中有一个在类中显示声明或继承而来，则不会生成；
+
+**data 标记数据类的要求如下：**
+>1. 主构造函数至少有一个参数；
+>2. 主构造函数的所有参数需要标记为 val 或 var；
+>3. 数据类不能是抽象、开放(open)、密封、内部的；
+
+**注意：** JVM中，如果生成的需要一个无参构造，则需要对所有属性指定默认值
+	
+	data class User(var name:String = "", var age:Int = 0)
+
+
+**复制**
+
+上面的数据类，会自动生成对应的copy方法，类似实现如下代码：
+
+	fun copy(name:String, age:Int) = User(name, age)	
+
+使用：
 
