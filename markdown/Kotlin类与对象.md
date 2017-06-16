@@ -438,6 +438,54 @@ kotlin有 `扩展函数` 与 `扩展属性`
 上面的数据类，会自动生成对应的copy方法，类似实现如下代码：
 
 	fun copy(name:String, age:Int) = User(name, age)	
+###解构声明
+把一个对象 `解构`成很多变量会很方便，这种语法称为 `解构声明`，下面的 `name` 和 `age` 可以独立使用，例如：
 
-使用：
+```java
+ val user1: User = User(name = "better", age = 30)
+ println(user1)
+ // copy
+ val user2: User = user1.copy(name = "cc")
+ println(user2)
+
+ // 解构
+ val(name,age) = user2
+ println("name: " + name + " age: " + age)
+```
+
+解构声明的代码会编译成如下代码：
+
+```java
+val name = user2.component1()
+val age = user2.component2()
+```
+
+### 密封类
+密封类用来表示受限的类继承解构，表示一个值得优先集中的类型，区别于枚举（枚举常量只存在一个实例，密封类的一个子类可包含状态的多个实例）
+修饰符使用 `sealed`;
+密封类可以有子类，但是子类必需嵌套在密封类声明之内；
+
+```java
+sealed class Expr
+
+data class Const(val number: Double) : Expr()               // 子类
+data class Sum(val num1: Expr, val num2: Expr) : Expr()     // 子类
+object NotANumber : Expr()
+
+// 密封类 when 的使用
+fun eval(expr: Expr): Double = when (expr) {
+    is Const -> expr.number
+    is Sum -> eval(expr.num1) + eval(expr.num2)
+    NotANumber -> Double.NaN        // 不需要写 else
+}
+
+
+fun main(args: Array<String>) {
+    val a1:Expr = Const(2.0)
+    val a2:Expr = Const(3.0)
+    val a3:Expr = Sum(a1, a2)
+    println(eval(a1))
+    println(a3)
+}
+```
 
