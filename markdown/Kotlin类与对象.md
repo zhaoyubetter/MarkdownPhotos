@@ -489,3 +489,139 @@ fun main(args: Array<String>) {
 }
 ```
 
+###型变
+更多内容请参考：https://zhuanlan.zhihu.com/p/26965437
+看了这个博客，才有点理解这个，感谢作者；
+
+在Java泛型中，有通配符，如：? extends T, ? super T 这种；
+extends 指类型参数上限，super指下限，Kotlin抛弃了这个，引入了生产者与消费者概念；
+
+**生产者**：只能*读取*数据的对象；
+**消费者**：只能*写入*数据的对象；
+
+把只能保证读取数据时类型安全的对象叫做生产者，用 out T 标记；只保证数据写入时安全时的对象叫做消费者，用 in T 标记；
+
+生产者（Producer）使用extends，消费者（Consumer）使用super。
+ 
+```java
+class Anim {}
+class FlyAnim extends Anim{}
+class Bird extends FlyAnim {}
+class RedBird extends Bird{}
+
+void test() {
+	 List<? extends Anim> extendAnims = new ArrayList<Bird>();
+    extendAnims.add(new Bird());        // 编译错误
+    extendAnims.add(new RedBird());		// 编译错误
+
+    List<? super FlyAnim> superAnims = new ArrayList<>();
+    superAnims.add(new Bird());        // 正常编译
+    // 以下，这里的 super 不是指父类的意思，而表示是，可以放父类，必须可以放其子类，多态
+    superAnims.add(new Anim());
+      
+}
+```
+ 
+这么记忆：**out T 等价于 ? extends T, in T等价于 ? super T, * 等价于 ?**
+
+也就是说如：`List<? extends Foo>`，在该对象上不允许调用`add()`或者`set`；
+
+**声明初型变**
+
+Kotlin对java泛型，最大的改动是添加了声明处的型变；  
+Java中以下写法编译出错：
+
+```java
+interface Source<T> {
+       T next();
+}
+void demo(Source<String> strs) {
+      // 需改成：Source<? extends Object> objs = strs;
+      Source<Object> objs = strs;
+}
+```
+因为Java不支持型变，`Source<String>`不是`Source<Object>`的子类型,不能把Source<String>类型的变量赋给Source<Object>,所以编译出错；		
+用Kotlin改下：
+
+```java
+// out T做生产者说明，此接口，只有一个读取的方法，可视为生产者
+// T 为协变的类型参数
+interface Source<out T> {	
+    fun next(): T
+}
+
+fun demo(strs: Source<String>) {
+    val objs: Source<Any> = strs
+}
+```
+`out`修饰符称为型变注解，生产；`in` 为参数逆变，只能被消费；
+
+**类型投影**
+
+指定只能调用其get方法的例子，不加 out 提示编译错误：  
+如：Array<in String> 对应于 Java 的 Array<? super String>
+
+```java
+// 类型投影
+fun copy(from: Array<out Any>, to: Array<Any>) {
+    for (i in from.indices) {
+        to[i] = from[i]
+    }
+}
+
+fun main(args: Array<String>) {
+    val ints: Array<Int> = arrayOf(1, 2, 3)
+    val others: Array<Any> = arrayOf("","2","00")
+
+    copy(ints, others)
+
+    for(i in others.indices) {
+        println(others[i])
+    }
+}
+```
+
+**星投影（不理解）**  
+语法:  
+
+1. 对于`Foo<out T>`,其中 T 是个具有上界的协变类型参数，`Foo<*>`等价于`Foo<out TUpper>`，当T未知时，可从Foo<*>读取TUpper的值；
+2. 对于`Foo<in T>`,其中 T 是逆变类型参数，Foo<*> 等价于 Foo<in Nothing>；
+3. 对于 `Foo<T>`,其中 T是一个具有上界 TUpper 的不型变类型参数，`Foo<*>`对于读取值等价于 `Foo<out Tupper>`，对于写时等价于`Foo<in Nothing>`
+
+**泛型函数**   
+不仅类可以有类型参数，函数也可以有，如：
+
+```java
+fun <T> single(item: T): List<T>? {
+    return null
+}
+```
+
+**泛型约束**   
+上界，类似java中的extends:		
+		
+	// 冒号后指定的类型是上界：Comparable与其子类，默认的上界是 Any?
+	fun <T : Comparable<T>> sort(list: List<T>) { 
+	}
+	
+**嵌套类与内部类**
+
+嵌套（类似Java中的static 内部类）：
+   
+	class Button : View {
+    	override fun getCurrentState(): State = ButtonState()
+    	override fun restoreState(state: State) {}
+    	// inner class
+    	class ButtonState : State {}
+		}
+	}
+	
+		// 使用：
+		fun main(args: Array<String>) {
+    		val state = Button.ButtonState()
+		}
+	}
+	
+	
+内部类（内部类用 inner 标记，以便可访问外部类的成员，内部类会带有一个外部类的引用）：  
+	
