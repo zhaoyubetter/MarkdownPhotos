@@ -623,5 +623,257 @@ fun <T> single(item: T): List<T>? {
 	}
 	
 	
-内部类（内部类用 inner 标记，以便可访问外部类的成员，内部类会带有一个外部类的引用）：  
+内部类（内部类用 inner 标记，以便可访问外部类的成员，内部类会带有一个外部类的引用，类似于Java中的内部类）：
 	
+	class Outer {
+    	private val bar: Int = 1
+
+    	inner class Inner {
+    	    fun test() = bar
+    	}
+	}
+
+	fun main(args: Array<String>) {
+    	Outer().Inner().test()  // 需要先创建外部类
+	}  
+
+匿名内部类(对象表达式 object 关键字)：
+	
+	view.addKeyEventListener(object : KeyEvent) {
+		override fun onKeyup() {}
+		override fun onKeyDown() {}
+	}
+
+	// 如果是接口，可使用带有接口类型前缀的lambda表达式创建
+	val listner = ActionListener {println()}
+	
+	
+
+	
+###枚举类
+
+枚举类最基本的用法是保证实现类型安全；每一个枚举常量都是一个对象；
+ 
+	enum class Color(val r: Int, val g: Int, val b: Int) {
+    	RED(255, 0, 0), ORANGE(255, 265, 0),
+    	YELLOW(255, 255, 0), GREEN(0, 255, 0),
+    	BLUE(0, 0, 255);        // 注意分号
+
+    	fun rgb() = (r * 256 + g) * 256 + b     // 枚举中，定义的方法
+
+    	// when 代替的 switch
+    	fun mix(c1: Color, c2: Color) =
+            when (setOf(c1, c2)) {
+                setOf(RED, YELLOW) -> ORANGE
+                setOf(YELLOW, BLUE) -> GREEN
+                else -> throw Exception("not support")
+          }
+
+    	fun mix2(c1: Color, c2: Color) =
+            // 不使用参数
+            when {
+                (c1 == RED && c2 == YELLOW ||
+                        c1 == YELLOW && c2 == RED) -> ORANGE
+                (c1 == YELLOW && c2 == BLUE
+                        || c1 == BLUE && c2 == YELLOW) -> GREEN
+                else -> throw Exception("not support")
+            }
+		}
+
+
+###对象
+
+不显式声明新的之类来实现一些功能，常见监听各种按钮事件，在Java中，用匿名内部类来处理；在Kotlin中用**对象表达式和对象声明**来概括；
+
+**对象表达式 （object 关键字）**	
+	
+创建匿名内部类对象的写法
+
+	view.addKeyEventListener(object : KeyEvent) {
+		override fun onKeyup() {}
+		override fun onKeyDown() {}
+	}
+
+如果超类有构造，需要传递合适的参数；多个超类型可以用逗号分隔来指定
+	
+	open class A(x: Int) {
+    	open val y: Int = x
+	}
+
+	interface B {}
+
+	val ab: A = object : A(1), B {	// 多个超类
+    	override val y = 15
+	}
+
+任何时候，如需要一个对象（无超类型时），可这么写：
+	
+	val addHoc = object {
+        var x: Int = 0
+        val y: Int = 0
+    }
+	
+**对象声明（object来实现单例）**
+	
+	object Payroll {
+    	val allEmployees = arrayListOf<Person>()
+
+    	fun calculateSalary() {
+        	for (p in allEmployees) {
+        	}
+    	}
+	}
+
+也可以添加超类型，比如,
+
+	// 单例
+	object CaseInsensitiveComparator : Comparator<String> {
+    	override fun compare(o1: String, o2: String): Int {
+        	return o1.compareTo(o2, ignoreCase = true)
+    	}
+	}
+
+	fun main(args: Array<String>) {
+    	println(CaseInsensitiveComparator.compare("abc", "ABC"))
+    	val list = listOf<String>("a","d", "b","g", "c")
+    	println(list.sortedWith(CaseInsensitiveComparator))
+	}
+
+
+**伴生对象 （compainion object）**
+
+在Kotlin，没有直接 static关键字，要想实现类似于Java 中 static ，如：static方法，我们 使用 `compainion` 关键字
+
+	/**
+ 	* 类似Java中的静态方法
+ 	*/
+	class A {
+    	companion object {
+    	    fun method() {
+    	        println(this)
+    	        println(" Companion object called")
+    	    }
+
+        	@JvmStatic		// 生成真正的静态
+        	fun realStaticMethod() {
+            	println("Companion object called")
+        	}
+    	}
+
+    	var str:String = "better"
+        	set(value) {
+        	    field = value
+       	 }
+	}
+
+	class B {
+    	companion object {
+	
+    	}
+	}
+
+	fun main(args: Array<String>) {
+    	A.method()      // 可直接访问，类似java中 static
+    	A.realStaticMethod()
+
+    	val a = A()
+    	a.str = "555"
+    	println(a.str)
+	}
+
+**注意：** 伴生对象看上去有点像其他语言的 静态成员， 但实际在运行时，仍然是真是对象的实例成员，而且，还可以实现接口，如果在JVM上，可以使用`@JvmStatic`注解，这样会生成真正的静态方法与字段；
+
+**对象表达式和对象声明之间的语法差异**
+
+对象表达式用来创建匿名内部类， 对象声明用来创建类似于单例的使用，有区别：
+
+- 对象表达式（匿名内部类）在使用它们的地方立刻执行；
+- 对象声明 （单例）是在第一次访问时延迟初始化；
+- 伴生对象（static）的初始化，是在相应的类被加载时，初始化，类似java静态初始化；
+
+### 委托
+
+委托有点类似于装饰设计模式，但比装饰显得更加完美，减少了继承，实现了对原方法的点缀；
+如下代码，添加变量，用来记录添加元素的个数（例子不实用，但可说明委托的意图）
+	
+	class CountingSet<T>(val innerSet: MutableCollection<T> = HashSet<T>()) :
+	 	MutableCollection<T> by innerSet {
+
+    	// 1.委托MutableCollection的实现给innerSet
+    	var objectsAdded = 0
+
+    	override fun add(element: T): Boolean {
+        	objectsAdded++
+        	return innerSet.add(element)
+    	}
+
+    	override fun addAll(elements: Collection<T>): Boolean {
+        	objectsAdded += elements.size
+        	return innerSet.addAll(elements)
+    	}
+	}
+
+	// 实用
+	fun main(args: Array<String>) {
+    	val cset = CountingSet<Int>()
+    	cset.addAll(listOf(1, 3, 3))
+    	println("${cset.objectsAdded} objects were added. ${cset.size} remain")
+	}
+
+通过 `by` 子句，将 `add` `addAll` 转给了内部委托 `innerSet`;其余方法，还是走老的；
+
+另一个例子(记录登陆次数)：
+
+	interface Login {
+    	fun doLogin()	
+	}
+
+	class LoginImpl : Login {
+    	override fun doLogin() {
+    	    println("执行了doLogin方法...")
+    	}
+	}
+
+	class CountLogin(val login: LoginImpl) : Login by login {
+    	var count = 0
+    	override fun doLogin() {
+    	    count++
+    	    login.doLogin()
+    	    println("次数： ${count}")
+    	}
+	}
+
+
+### 委托属性
+	
+- 延迟属性（lazy properties）: 某值只在首次访问时初始化；
+- 可观察属性：监听器会收到有关此属性变更的通知；
+- 把多个属性存储在一个映射中；
+
+语法为：  
+`val/var<属性名>：<类型> by <表达式>`，在by后面的表达式是 该委托，属性对应的setter于getter会被委托给它的 `getValue` `setValue` 方法
+
+	class Example {
+	    var p: String by Delegate()
+	}
+
+	class Delegate {
+    	operator fun getValue(thisRef: Any?, property: KProperty<*>): String {
+    	    return "$thisRef, '${property.name}' to me"
+    	}
+
+    	operator fun setValue(thisRef: Any?, property: KProperty<*>, value: String) {
+     	   println("$value assigned to '${property.name} in $thisRef'")
+    	}
+	}
+
+	fun main(args: Array<String>) {
+    	val e = Example()
+    	// 监听属性的 get 与 set
+    	println(e.p)
+    	e.p = "better"
+	}
+
+
+
+
