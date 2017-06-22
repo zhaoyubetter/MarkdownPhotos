@@ -874,6 +874,74 @@ fun <T> single(item: T): List<T>? {
     	e.p = "better"
 	}
 
+**延迟属性Lazy**   
 
+`lazy()`是接受一个lambda并返回一个`Lazy<T>`实例的函数，返回的实例可作为实现延迟属性的委托：第一次调用`get()`会执行已传递给`lazy()`的Lambda表达式并记录结果，后续调用，直接返回记录的结果；
 
+	val lazyValue: String by lazy {
+    	println("computed")
+    	"better"
+	}
+
+	fun main(args: Array<String>) {
+   	 	println(lazyValue)
+   		println(lazyValue)
+    }
+默认情况下，对`lazy属性`的求值，是同步锁的；如果确定不需要同步，可以添加其他模式来取消；
+
+**可观察属性Observable**
+
+`Delegates.observable()`接受2个参数：初始值和修改时的处理程序，每当属性被赋值时，会调用处理程序；3个参数：被赋值的属性、旧值和新值；
+
+	class User {
+    	var name: String by Delegates.observable("<no name>") {
+        	prop, old, new ->
+        	println("$old -> $new")
+    	}
+	}
+
+	fun main(args: Array<String>) {
+    	val user = User()
+    	user.name = "better"
+    	user.name = "best"
+	}
+	
+输出：
+	
+	<no name> -> better
+	better -> best
+	
+**把属性存储在映射中**
+
+类似解析Json的`动态`事情应用上，可以使用映射实例自身作为委托来实现委托属性。
+
+	class MyUser(val map: Map<String, Any?>) {
+    	val name: String by map  // 使用映射实例自身作为委托来实现委托属性。
+    	val age: Int by map
+	}
+
+	fun main(args: Array<String>) {
+		
+		// 委托属性将从映射中取值（字符串键 - 属性的名称）
+    	val user = MyUser(mapOf(
+            "name" to "better",
+            "age" to 25
+    	))
+
+   	 	println(user.name)
+   	 	println(user.age)
+	}
+
+**委托属性要求**
+
+- 对于一个只读属性（val 声明的），委托必须提供一个名为 `getValue`的函数，该函数接受以为参数：
+	1. thisRef - 必须与 属性所有者类型相同或其超类型；
+	2. property - 必须是类型 KProperty<*>或其超类型；
+
+- 对于可变属性（var 声明的），委托提供额外的名为 setValue 的函数，参数如下：
+	1. thisRef - 同上
+	2. property - 同上
+	3. new value - 必须和属性类型相同；
+	
+getValue 和 setValue 函数都需要用 `operator` 关键字来标记；
 
