@@ -1,9 +1,9 @@
 ## 新方式 - 实现ViewPager下的 Fragment 的延迟加载
 
-### 为什么需要验证加载
+### 为什么需要延迟加载
 
->在Viewpager中，默认加载下一页的数据，比如在Page1页面时，会加载下一页的Page2一般我们结合Viewpager、fragment、tablayout一起联合使用；
-fragment加载数据时，习惯从 `onViewCreated()` 回调方法中，进行数据的加载（比如：请求网络）,如果在Page1时，这个时候 Page2 的 `onViewCreated()` 会执行，如果用户不进行 Page2 的访问，会造成一定的资源浪费，用户体验不是很好；  
+>在Viewpager中，默认会加载下一页的数据，比如在Page1页面时，会加载下一页的Page2一般我们结合Viewpager、fragment、tablayout一起联合使用；
+fragment加载数据时，我们习惯从 `onViewCreated()` 回调方法中，进行数据的加载（比如：请求网络）,如果在Page1时，这个时候 Page2 的 `onViewCreated()` 会执行，如果用户不进行 Page2 的访问，会造成一定的资源浪费，用户体验不是很好；  
 所以，最好的方式是用户滑动具体某个页面时（比如Page3），才去加载（Page3）的页面数据；
 
 ### 传统的解决方案
