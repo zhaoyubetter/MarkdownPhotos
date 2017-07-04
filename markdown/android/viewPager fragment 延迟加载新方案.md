@@ -149,6 +149,8 @@ fragment加载数据时，习惯从 `onViewCreated()` 回调方法中，进行�
 
 [https://github.com/zhaoyubetter/StateDemo/blob/master/app/src/main/java/state/better/statedemo/activity/lazy/LazyLoadActivity.java](https://github.com/zhaoyubetter/StateDemo/blob/master/app/src/main/java/state/better/statedemo/activity/lazy/LazyLoadActivity.java)
 
+**kotlin 形式，请参考大神的**
+[https://github.com/momodae/VolunteerUnion/blob/master/app/src/main/java/cz/volunteerunion/adapter/LazyFragmentPagerAdapter.kt](https://github.com/momodae/VolunteerUnion/blob/master/app/src/main/java/cz/volunteerunion/adapter/LazyFragmentPagerAdapter.kt)
 
 
 
