@@ -63,7 +63,8 @@ Kotlin 所有类的超类是 Any，类似于Java的Object；继承使用 冒号 
 
 		open class Base(p:Int)
 		class Child(p:Int):Base(p)	// 继承自Base类
-- 构造函数中，使用**super**初始化基类
+- 构造函数中，使用**
+- **初始化基类
 
 		class MyView : View {
 			constructor(ctx: Context)：super(ctx)
