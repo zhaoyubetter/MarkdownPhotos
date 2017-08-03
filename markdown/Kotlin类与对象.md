@@ -527,6 +527,27 @@ void test() {
 
 也就是说如：`List<? extends Foo>`，在该对象上不允许调用`add()`或者`set`；
 
+**补充内容：**
+
+摘自：[!http://www.kotliner.cn/2017/06/26/kotlin-generics/]
+
+`out T` 表示型变定义，即对于 Kotlin 中 Collection接口，Collection<Number>，也是 Collection<Int>的父类;  
+ 
+>对于协变类型，我们通常是不允许其涉及泛型参数的部分被改变的；  
+逆变的情形正好相反，即不可以将泛型参数作为方法的返回值
+
+
+```java
+public interface Collection<out E> : Iterable<E>	
+```
+而对于MutableList 来说，他的元素是不能变的
+
+``` java
+public interface MutableCollection<E> : Collection<E>, MutableIterable<E> {
+
+```
+
+
 **声明初型变**
 
 Kotlin对java泛型，最大的改动是添加了声明处的型变；  

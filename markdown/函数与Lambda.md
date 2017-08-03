@@ -143,7 +143,7 @@ fun <T, R> List<T>.map(transform: (T) -> R): List<R> {    val result = arrayLis
         println(a)
     }
 
-	 // 省略声明
+	 // 省略声明，lambda为唯一参数时
     val three = list.map { it * 3 }		// 省略圆括号
     for (a in three)
         println(a)
@@ -177,7 +177,7 @@ fun <T> max(collection: Collection<T>, less: (T, T) -> Boolean): T? {    var ma
     	  // 这里调用了函数        if (max == null || less(max, it))            max = it	return max 
 }
 ```
-参数 `less` 的类型是 `(T,T) -> Boolean`，即：接受2个类型为`T`的参数，并返回一个Boolean值得函数；这就是 `函数类型`；
+参数 `less` 的类型是 `(T,T) -> Boolean`，即：接受2个类型为`T`的参数，并返回一个Boolean值的函数；这就是 `函数类型`；
 
 ####Lambda表达式语法
 Lambda表达式的完整语法形式，如下：
@@ -185,7 +185,7 @@ Lambda表达式的完整语法形式，如下：
 	val sum = {x:Int, y:Int -> x + y}
 	
 lambda表达式总是被大括号扩着，完整语法在 大括号内，类型标记可选，
-函数体跟在一个 `->` 之后；如果推断出的该Lambda的返回类型不是 Unit,那么该 Lambda主体中的最后一个表达式会视为返回值；
+函数体跟在一个 `->` 之后；**如果推断出的该Lambda的返回类型不是 Unit,那么该 Lambda主体中的最后一个表达式会视为返回值；**
 
 加上所有可选的标注如下：
 
