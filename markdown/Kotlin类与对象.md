@@ -7,7 +7,7 @@
 ### 构造函数
 **主构造函数**
 
-kotlin 中可有一个*主构造函数* 和 多个次构造函数，主构造为类的一部分，如主构造函数没有任何注释or修饰可省略 **constructor** 关键字：
+kotlin 中可有一个*主构造函数* 和 多个次构造函数，主构造为类的一部分，如主构造函数没有任何注释or修饰,可省略 `constructor` 关键字：
 init 为初始化块
 	
 	class Myclass construcor(val value:String) {
@@ -25,7 +25,7 @@ init 为初始化块
 		}	
 	}
 
-在次要构造中，委托调用统一个类的构造用**this**
+在次要构造中，委托调用同一个类的构造用**this**
 	
 	class Person(val name: String) {
     	constructor(name: String, parent: Person) : this(name) {
@@ -44,12 +44,15 @@ init 为初始化块
     	}
 	}
 
+>注意：在 JVM 虚拟机中，如果主构造函数的所有参数都有默认值，编译器会生成一个附加的无参的构造函数
+
 ### 创建类的实例
 调用构造函数，kotlin不用new来创建对象
 	
 	val person = Person()
 
 **类成员包括**
+
 - 构造函数和初始化块
 - 函数
 - 属性
@@ -63,12 +66,12 @@ Kotlin 所有类的超类是 Any，类似于Java的Object；继承使用 冒号 
 
 		open class Base(p:Int)
 		class Child(p:Int):Base(p)	// 继承自Base类
-- 构造函数中，使用**
-- **初始化基类
+
+- 构造函数中，初始化基类
 
 		class MyView : View {
 			constructor(ctx: Context)：super(ctx)
-			constructor(ctx:Context, attrs:AttributeSet) : sper(ctx, attrs)	
+			constructor(ctx:Context, attrs:AttributeSet) : super(ctx, attrs)	
 		}
 		
 - 覆盖方法：要求覆盖的方法，必须加前缀 override，与类的定义一致，如果方法前，没有加 open 关键字，则，默认方法是 final，不允许被override
@@ -117,6 +120,7 @@ Kotlin 所有类的超类是 Any，类似于Java的Object；继承使用 冒号 
 				super<B>.f()			// 调用B.f()
 			}
 		}
+
 		
 ### 抽象类
 类似与java，类的某些成员可以声明为 *abstract*， 被声明为 abstract，默认就是open；
@@ -128,6 +132,92 @@ Kotlin 所有类的超类是 Any，类似于Java的Object；继承使用 冒号 
 		override abstract fun f()		// 抽象的
 	}
 		
+#### 嵌套类与内部类
+
+嵌套（类似Java中的`static` 内部类）：
+   
+	class Button : View {
+    	override fun getCurrentState(): State = ButtonState()
+    	override fun restoreState(state: State) {}
+    	// inner class
+    	class ButtonState : State {}
+		}
+	}
+	
+		// 使用：
+		fun main(args: Array<String>) {
+    		val state = Button.ButtonState()
+		}
+	}
+	
+	
+**内部类**（内部类用 inner 标记，以便可访问外部类的成员，内部类会带有一个外部类的引用，类似于Java中的内部类）：
+	
+	class Outer {
+    	private val bar: Int = 1
+    	var prop = "成员属性"
+
+       inner class Inner {
+        fun test() = bar    // 直接访问外部类成员
+        	fun innserTest() {
+            	var outer = this@Outer
+            	println("访问外部类成员，${outer.prop}")
+        	}
+    	}
+	}
+
+**匿名内部类**(对象表达式 `object` 关键字)：
+
+使用对象表达式来创建匿名内部类
+	
+	view.addKeyEventListener(object : KeyEvent) {
+		override fun onKeyup() {}
+		override fun onKeyDown() {}
+	}
+
+	// 如果是接口，可使用带有接口类型前缀的lambda表达式创建
+	val listner = ActionListener {println()}
+
+其他例子：
+	
+	class Test {
+    	var v = "成员属性"
+    	fun setInterFace(test: TestInterFace) {
+        	test.test()
+    	}
+	}
+
+	interface TestInterFace {
+    	fun test()
+	}
+
+	fun main(args: Array<String>) {
+    	var test = Test()
+    	// 采用对象表达式来创建接口对象，即匿名内部类的实例。
+    	test.setInterFace(object :TestInterFace {
+        	override fun test() {}
+    	})
+	}
+
+### 类的修饰符
+
+类的修饰符包括 classModifier 和_accessModifier_:
+
+**classModifier: 类属性修饰符，标示类本身特性。**
+
+- abstract    // 抽象类  
+- final       // 类不可继承，默认属性
+- enum        // 枚举类
+- open        // 类可继承，类默认是final的
+- annotation  // 注解类
+
+**accessModifier: 访问权限修饰符**
+
+- private    // 仅在同一个文件中可见
+- protected  // 同一个文件中或子类可见
+- public     // 所有调用的地方都可见
+- internal   // 同一个模块中可见
+
 ### 伴生对象
 Kotlin 中没有静态对象，如果无需类的实例来调用、但需要访问类的内部的函数，使用关键字 **companion** 来标记类的内部对象为伴生对象；来达到 静态使用;
 
@@ -181,6 +271,9 @@ fun main(args: Array<String>) {
 通过默认字段来访问属性，kotlin提供 `field`关键字来访问幕后字段；
 `field`只能在属性的访问器内；
 如上代码；
+
+
+
 
 ### 编译期常量
 
@@ -626,48 +719,7 @@ fun <T> single(item: T): List<T>? {
 	fun <T : Comparable<T>> sort(list: List<T>) { 
 	}
 	
-**嵌套类与内部类**
 
-嵌套（类似Java中的static 内部类）：
-   
-	class Button : View {
-    	override fun getCurrentState(): State = ButtonState()
-    	override fun restoreState(state: State) {}
-    	// inner class
-    	class ButtonState : State {}
-		}
-	}
-	
-		// 使用：
-		fun main(args: Array<String>) {
-    		val state = Button.ButtonState()
-		}
-	}
-	
-	
-内部类（内部类用 inner 标记，以便可访问外部类的成员，内部类会带有一个外部类的引用，类似于Java中的内部类）：
-	
-	class Outer {
-    	private val bar: Int = 1
-
-    	inner class Inner {
-    	    fun test() = bar
-    	}
-	}
-
-	fun main(args: Array<String>) {
-    	Outer().Inner().test()  // 需要先创建外部类
-	}  
-
-匿名内部类(对象表达式 object 关键字)：
-	
-	view.addKeyEventListener(object : KeyEvent) {
-		override fun onKeyup() {}
-		override fun onKeyDown() {}
-	}
-
-	// 如果是接口，可使用带有接口类型前缀的lambda表达式创建
-	val listner = ActionListener {println()}
 	
 	
 
