@@ -122,7 +122,7 @@ Kotlin 所有类的超类是 Any，类似于Java的Object；继承使用 冒号 
 			}
 		}
 
-		
+
 ### 抽象类
 类似与java，类的某些成员可以声明为 *abstract*， 被声明为 abstract，默认就是open；
 	
@@ -343,4 +343,5 @@ Java 的Object 也有上面的3个方法；
     	override fun onUp() {
     	}
 	}
-	
+
+通过反编译代码，我们可以看到属性，实际上会生成对应的方法；	

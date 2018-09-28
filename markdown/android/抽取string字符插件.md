@@ -5,3 +5,5 @@
 
 
 ![value文件路径](https://github.com/zhaoyubetter/MarkdownPhotos/raw/master/img/build_values-.png)
+
+![value文件路径](https://github.com/zhaoyubetter/MarkdownPhotos/raw/master/img/plugin_extract_strings.jpg)
